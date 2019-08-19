@@ -4,6 +4,7 @@ import Regexp from 'path-to-regexp'
 import { cleanPath } from './util/path'
 import { assert, warn } from './util/warn'
 
+// 创建路由 map
 export function createRouteMap (
   routes: Array<RouteConfig>,
   oldPathList?: Array<string>,
@@ -14,18 +15,18 @@ export function createRouteMap (
   pathMap: Dictionary<RouteRecord>;
   nameMap: Dictionary<RouteRecord>;
 } {
-  // the path list is used to control path matching priority
+  // pathList 用于控制路径匹配优先级
   const pathList: Array<string> = oldPathList || []
-  // $flow-disable-line
+  // 根据 path 的路由映射表
   const pathMap: Dictionary<RouteRecord> = oldPathMap || Object.create(null)
-  // $flow-disable-line
+  // 根据 name 的路由映射表
   const nameMap: Dictionary<RouteRecord> = oldNameMap || Object.create(null)
-
+  // 遍历路由配置添加到 pathList pathMap nameMap 中
   routes.forEach(route => {
     addRouteRecord(pathList, pathMap, nameMap, route)
   })
 
-  // ensure wildcard routes are always at the end
+  // 将通配符路由 * 取出插到末尾，确保通配符路由始终在尾部
   for (let i = 0, l = pathList.length; i < l; i++) {
     if (pathList[i] === '*') {
       pathList.push(pathList.splice(i, 1)[0])
