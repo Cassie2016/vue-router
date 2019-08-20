@@ -41,7 +41,7 @@ export function createRouteMap (
     nameMap
   }
 }
-
+// 增加 路由记录 函数
 function addRouteRecord (
   pathList: Array<string>,
   pathMap: Dictionary<RouteRecord>,
@@ -50,6 +50,7 @@ function addRouteRecord (
   parent?: RouteRecord,
   matchAs?: string
 ) {
+  // 获取 path, name
   const { path, name } = route
   if (process.env.NODE_ENV !== 'production') {
     assert(path != null, `"path" is required in a route configuration.`)
@@ -59,26 +60,32 @@ function addRouteRecord (
       `string id. Use an actual component instead.`
     )
   }
-
+  // 编译正则的选项
   const pathToRegexpOptions: PathToRegexpOptions = route.pathToRegexpOptions || {}
+  // 格式化 path
+  // 根据 pathToRegexpOptions.strict 判断是否删除末尾斜杠 /
+  // 根据是否以斜杠 / 开头判断是否需要拼接父级路由的路径
   const normalizedPath = normalizePath(
     path,
     parent,
-    pathToRegexpOptions.strict
+    pathToRegexpOptions.strict // 末尾斜杠是否精确匹配 (default: false)
   )
 
+  // 匹配规则是否大小写敏感？(默认值：false)
+  // 路由配置中 caseSensitive 和 pathToRegexpOptions.sensitive 作用相同
   if (typeof route.caseSensitive === 'boolean') {
     pathToRegexpOptions.sensitive = route.caseSensitive
   }
-
+  // 路由记录 对象
   const record: RouteRecord = {
     path: normalizedPath,
     regex: compileRouteRegex(normalizedPath, pathToRegexpOptions),
+    // 若非命名视图组件，则设为默认视图组件
     components: route.components || { default: route.component },
     instances: {},
     name,
     parent,
-    matchAs,
+    matchAs, // alias 匹配的路由记录 path 为别名，需根据 matchAs 匹配
     redirect: route.redirect,
     beforeEnter: route.beforeEnter,
     meta: route.meta || {},
@@ -90,9 +97,9 @@ function addRouteRecord (
   }
 
   if (route.children) {
-    // Warn if route is named, does not redirect and has a default child route.
-    // If users navigate to this route by name, the default child will
-    // not be rendered (GH Issue #629)
+    // 如果是命名路由，没有重定向，并且有默认子路由，则发出警告。
+    // 如果用户通过 name 导航路由跳转则默认子路由将不会渲染
+    // https://github.com/vuejs/vue-router/issues/629
     if (process.env.NODE_ENV !== 'production') {
       if (route.name && !route.redirect && route.children.some(child => /^\/?$/.test(child.path))) {
         warn(
@@ -105,7 +112,9 @@ function addRouteRecord (
         )
       }
     }
+    // 递归路由配置的 children 属性，添加路由记录
     route.children.forEach(child => {
+      // 别名匹配时真正的 path 为 matchAs
       const childMatchAs = matchAs
         ? cleanPath(`${matchAs}/${child.path}`)
         : undefined
@@ -113,6 +122,7 @@ function addRouteRecord (
     })
   }
 
+  // 处理别名 alias 逻辑 增加对应的 记录
   if (route.alias !== undefined) {
     const aliases = Array.isArray(route.alias)
       ? route.alias
@@ -133,12 +143,12 @@ function addRouteRecord (
       )
     })
   }
-
+  // 更新 path map
   if (!pathMap[record.path]) {
     pathList.push(record.path)
     pathMap[record.path] = record
   }
-
+  // 命名路由添加记录
   if (name) {
     if (!nameMap[name]) {
       nameMap[name] = record
