@@ -30,7 +30,11 @@ export function createMatcher (
     currentRoute?: Route,
     redirectedFrom?: Location
   ): Route {
-    // 处理 path params query
+    // 序列化 url
+    // 比如 /abc?foo=bar&baz=qux#hello 序列化后
+    // path: '/abc'
+    // hash: '#hello'
+    // params: { foo: 'bar', baz: 'qux' }
     const location = normalizeLocation(raw, currentRoute, false, router)
     const { name } = location
 
@@ -156,7 +160,7 @@ export function createMatcher (
     }
     return _createRoute(null, location)
   }
-
+  // 根据条件创建不同的路由
   function _createRoute (
     record: ?RouteRecord,
     location: Location,
