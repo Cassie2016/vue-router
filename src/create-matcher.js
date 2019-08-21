@@ -17,21 +17,25 @@ export function createMatcher (
   routes: Array<RouteConfig>,
   router: VueRouter
 ): Matcher {
+  // 创建路由映射表
   const { pathList, pathMap, nameMap } = createRouteMap(routes)
 
   function addRoutes (routes) {
     createRouteMap(routes, pathList, pathMap, nameMap)
   }
 
+  // 路由匹配
   function match (
     raw: RawLocation,
     currentRoute?: Route,
     redirectedFrom?: Location
   ): Route {
+    // 处理 path params query
     const location = normalizeLocation(raw, currentRoute, false, router)
     const { name } = location
 
     if (name) {
+      // 命名路由处理
       const record = nameMap[name]
       if (process.env.NODE_ENV !== 'production') {
         warn(record, `Route with name '${name}' does not exist`)
@@ -52,7 +56,7 @@ export function createMatcher (
           }
         }
       }
-
+      // 合并 location 及 record 的数据并返回一个新的路由对象
       if (record) {
         location.path = fillParams(record.path, location.params, `named route "${name}"`)
         return _createRoute(record, location, redirectedFrom)
@@ -62,12 +66,13 @@ export function createMatcher (
       for (let i = 0; i < pathList.length; i++) {
         const path = pathList[i]
         const record = pathMap[path]
+        // 合并 location 及 record 的数据并返回一个新的路由对象
         if (matchRoute(record.regex, location.path, location.params)) {
           return _createRoute(record, location, redirectedFrom)
         }
       }
     }
-    // no match
+    // 没有匹配到路由记录则返回一个空的路由对象
     return _createRoute(null, location)
   }
 
