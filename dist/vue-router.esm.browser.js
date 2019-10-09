@@ -1824,23 +1824,7 @@ function once (fn) {
 /*  */
 
 class History {
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
   // implemented by sub-classes
-  
-  
-  
-  
-  
-
   constructor (router, base) {
     this.router = router;
     this.base = normalizeBase(base);
