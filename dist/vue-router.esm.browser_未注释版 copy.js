@@ -2404,161 +2404,150 @@ class AbstractHistory extends History {
 
 
 class VueRouter {
-  // 构造函数 用于处理实例化时传入的参数
   constructor (options = {}) {
-    this.app = null // 根组件实例，在 init 中获取并赋值
-    this.apps = [] // 保存多个根组件实例，在 init 中被添加
-    this.options = options // 传入配置项参数
-    this.beforeHooks = [] // 初始化全局前置守卫
-    this.resolveHooks = [] // 初始化全局解析守卫
-    this.afterHooks = [] // 初始化全局后置钩子
-    // 创建 match 匹配函数
-    this.matcher = createMatcher(options.routes || [], this)
-
-    let mode = options.mode || 'hash' // 默认 hash 模式
-    // history 浏览器环境不支持时向下兼容使用 hash 模式
-    this.fallback = mode === 'history' && !supportsPushState && options.fallback !== false
+    this.app = null;
+    this.apps = [];
+    this.options = options;
+    this.beforeHooks = [];
+    this.resolveHooks = [];
+    this.afterHooks = [];
+    this.matcher = createMatcher(options.routes || [], this);
+    debugger
+    let mode = options.mode || 'hash';
+    this.fallback = mode === 'history' && !supportsPushState && options.fallback !== false;
     if (this.fallback) {
-      mode = 'hash'
+      mode = 'hash';
     }
-    // 非浏览器环境强制使用 abstract 模式
     if (!inBrowser) {
-      mode = 'abstract'
+      mode = 'abstract';
     }
-    this.mode = mode
-    // 根据不同模式生成 history 实例
+    this.mode = mode;
+
     switch (mode) {
       case 'history':
-        this.history = new HTML5History(this, options.base)
+        this.history = new HTML5History(this, options.base);
         break
       case 'hash':
-        this.history = new HashHistory(this, options.base, this.fallback)
+        this.history = new HashHistory(this, options.base, this.fallback);
         break
       case 'abstract':
-        this.history = new AbstractHistory(this, options.base)
+        this.history = new AbstractHistory(this, options.base);
         break
       default:
-        if (process.env.NODE_ENV !== 'production') {
-          assert(false, `invalid mode: ${mode}`)
+        {
+          assert(false, `invalid mode: ${mode}`);
         }
     }
   }
 
-  // 获取到路由路径对应的组件实例
   match (
     raw,
     current,
-    redirectedFrom,
+    redirectedFrom
   ) {
     return this.matcher.match(raw, current, redirectedFrom)
   }
 
-  // 返回 history.current 当前路由路径
   get currentRoute () {
     return this.history && this.history.current
   }
 
-  // 传入根组件实例
   init (app /* Vue component instance */) {
-    // 非生产环境进行未安装路由的断言报错提示
     "development" !== 'production' && assert(
       install.installed,
       `not installed. Make sure to call \`Vue.use(VueRouter)\` ` +
       `before creating root instance.`
-    )
-    // 保存该根组件实例
-    this.apps.push(app)
+    );
 
-    // 设置 app 销毁程序
+    this.apps.push(app);
+
+    // set up app destroyed handler
     // https://github.com/vuejs/vue-router/issues/2639
     app.$once('hook:destroyed', () => {
-      // 当销毁时，将 app 从 this.apps 数组中清除，防止内存溢出
-      const index = this.apps.indexOf(app)
-      if (index > -1) this.apps.splice(index, 1)
+      // clean out app from this.apps array once destroyed
+      const index = this.apps.indexOf(app);
+      if (index > -1) this.apps.splice(index, 1);
       // ensure we still have a main app or null if no apps
       // we do not release the router so it can be reused
-      if (this.app === app) this.app = this.apps[0] || null
-    })
+      if (this.app === app) this.app = this.apps[0] || null;
+    });
 
-    // app 已初始化则直接返回
+    // main app previously initialized
+    // return as we don't need to set up new history listener
     if (this.app) {
       return
     }
 
-    this.app = app
+    this.app = app;
 
-    // 跳转到当前路由
-    const history = this.history
+    const history = this.history;
 
     if (history instanceof HTML5History) {
-      history.transitionTo(history.getCurrentLocation())
+      history.transitionTo(history.getCurrentLocation());
     } else if (history instanceof HashHistory) {
       const setupHashListener = () => {
-        history.setupListeners()
-      }
+        history.setupListeners();
+      };
       history.transitionTo(
         history.getCurrentLocation(),
         setupHashListener,
         setupHashListener
-      )
+      );
     }
-    // 设置路由监听，路由改变时改变 _route 属性，表示当前路由
-    // 该属性在 install.js 中与 history.current 定义为响应式属性
+
     history.listen(route => {
       this.apps.forEach((app) => {
-        app._route = route
-      })
-    })
+        app._route = route;
+      });
+    });
   }
 
-  // 注册一些全局钩子函数
-  // 全局前置守卫
   beforeEach (fn) {
     return registerHook(this.beforeHooks, fn)
   }
-  // 全局解析守卫
+
   beforeResolve (fn) {
     return registerHook(this.resolveHooks, fn)
   }
-  // 全局后置钩子
+
   afterEach (fn) {
     return registerHook(this.afterHooks, fn)
   }
-  // 路由完成初始导航时调用
+
   onReady (cb, errorCb) {
-    this.history.onReady(cb, errorCb)
+    this.history.onReady(cb, errorCb);
   }
-  // 路由导航过程中出错时被调用
+
   onError (errorCb) {
-    this.history.onError(errorCb)
+    this.history.onError(errorCb);
   }
-  // 注册一些 history 导航函数
+
   push (location, onComplete, onAbort) {
-    this.history.push(location, onComplete, onAbort)
+    this.history.push(location, onComplete, onAbort);
   }
 
   replace (location, onComplete, onAbort) {
-    this.history.replace(location, onComplete, onAbort)
+    this.history.replace(location, onComplete, onAbort);
   }
 
   go (n) {
-    this.history.go(n)
+    this.history.go(n);
   }
 
   back () {
-    this.go(-1)
+    this.go(-1);
   }
 
   forward () {
-    this.go(1)
+    this.go(1);
   }
-  // 获取路由对应的组件
+
   getMatchedComponents (to) {
     const route = to
       ? to.matched
         ? to
         : this.resolve(to).route
-      : this.currentRoute
+      : this.currentRoute;
     if (!route) {
       return []
     }
@@ -2568,23 +2557,23 @@ class VueRouter {
       })
     }))
   }
-  // 解析路由表
+
   resolve (
     to,
     current,
     append
   ) {
-    current = current || this.history.current
+    current = current || this.history.current;
     const location = normalizeLocation(
       to,
       current,
       append,
       this
-    )
-    const route = this.match(location, current)
-    const fullPath = route.redirectedFrom || route.fullPath
-    const base = this.history.base
-    const href = createHref(base, fullPath, this.mode)
+    );
+    const route = this.match(location, current);
+    const fullPath = route.redirectedFrom || route.fullPath;
+    const base = this.history.base;
+    const href = createHref(base, fullPath, this.mode);
     return {
       location,
       route,
@@ -2594,34 +2583,35 @@ class VueRouter {
       resolved: route
     }
   }
-  // 添加路由表  并自动跳转到首页
+
   addRoutes (routes) {
-    this.matcher.addRoutes(routes)
+    this.matcher.addRoutes(routes);
     if (this.history.current !== START) {
-      this.history.transitionTo(this.history.getCurrentLocation())
+      this.history.transitionTo(this.history.getCurrentLocation());
     }
   }
 }
 
-// 注册钩子函数，push 存入数组
+
+
 function registerHook (list, fn) {
-  list.push(fn)
+  list.push(fn);
   return () => {
-    const i = list.indexOf(fn)
-    if (i > -1) list.splice(i, 1)
+    const i = list.indexOf(fn);
+    if (i > -1) list.splice(i, 1);
   }
 }
-// 根据模式（hash / history）拼接 location.href
+
 function createHref (base, fullPath, mode) {
-  var path = mode === 'hash' ? '#' + fullPath : fullPath
+  var path = mode === 'hash' ? '#' + fullPath : fullPath;
   return base ? cleanPath(base + '/' + path) : path
 }
-// 挂载静态属性及方法
-VueRouter.install = install
-VueRouter.version = '__VERSION__'
-// 浏览器环境下且 window.Vue 存在则自动调用 Vue.use 注册该路由插件
+
+VueRouter.install = install;
+VueRouter.version = '3.0.5';
+
 if (inBrowser && window.Vue) {
-  window.Vue.use(VueRouter)
+  window.Vue.use(VueRouter);
 }
 
 export default VueRouter;
