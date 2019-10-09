@@ -150,8 +150,6 @@ function resolveProps (route, config) {
   }
 }
 
-/*  */
-
 const encodeReserveRE = /[!'()*]/g;
 const encodeReserveReplacer = c => '%' + c.charCodeAt(0).toString(16);
 const commaRE = /%2C/g;
@@ -243,8 +241,6 @@ function stringifyQuery (obj) {
   }).filter(x => x.length > 0).join('&') : null;
   return res ? `?${res}` : ''
 }
-
-/*  */
 
 const trailingSlashRE = /\/?$/;
 
@@ -373,8 +369,6 @@ function queryIncludes (current, target) {
   }
   return true
 }
-
-/*  */
 
 // work around weird flow bug
 const toTypes = [String, Object];
@@ -559,11 +553,7 @@ function install (Vue) {
   strats.beforeRouteEnter = strats.beforeRouteLeave = strats.beforeRouteUpdate = strats.created;
 }
 
-/*  */
-
 const inBrowser = typeof window !== 'undefined';
-
-/*  */
 
 function resolvePath (
   relative,
@@ -1067,8 +1057,6 @@ pathToRegexp_1.compile = compile_1;
 pathToRegexp_1.tokensToFunction = tokensToFunction_1;
 pathToRegexp_1.tokensToRegExp = tokensToRegExp_1;
 
-/*  */
-
 // $flow-disable-line
 const regexpCompileCache = Object.create(null);
 
@@ -1097,8 +1085,6 @@ function fillParams (
     delete params[0];
   }
 }
-
-/*  */
 
 function createRouteMap (
   routes,
@@ -1262,8 +1248,6 @@ function normalizePath (path, parent, strict) {
   return cleanPath(`${parent.path}/${path}`)
 }
 
-/*  */
-
 function normalizeLocation (
   raw,
   current,
@@ -1319,10 +1303,6 @@ function normalizeLocation (
     hash
   }
 }
-
-/*  */
-
-
 
 function createMatcher (
   routes,
@@ -1512,8 +1492,6 @@ function resolveRecordPath (path, record) {
   return resolvePath(path, record.parent ? record.parent.path : '/', true)
 }
 
-/*  */
-
 const positionStore = Object.create(null);
 
 function setupScroll () {
@@ -1639,8 +1617,6 @@ function scrollToPosition (shouldScroll, position) {
   }
 }
 
-/*  */
-
 const supportsPushState = inBrowser && (function () {
   const ua = window.navigator.userAgent;
 
@@ -1696,8 +1672,6 @@ function replaceState (url) {
   pushState(url, true);
 }
 
-/*  */
-
 function runQueue (queue, fn, cb) {
   const step = index => {
     if (index >= queue.length) {
@@ -1714,8 +1688,6 @@ function runQueue (queue, fn, cb) {
   };
   step(0);
 }
-
-/*  */
 
 function resolveAsyncComponents (matched) {
   return (to, from, next) => {
@@ -1820,8 +1792,6 @@ function once (fn) {
     return fn.apply(this, args)
   }
 }
-
-/*  */
 
 class History {
   // implemented by sub-classes
@@ -2121,8 +2091,6 @@ function poll (
   }
 }
 
-/*  */
-
 class HTML5History extends History {
   constructor (router, base) {
     super(router, base);
@@ -2194,8 +2162,6 @@ function getLocation (base) {
   }
   return (path || '/') + window.location.search + window.location.hash
 }
-
-/*  */
 
 class HashHistory extends History {
   constructor (router, base, fallback) {
@@ -2334,8 +2300,6 @@ function replaceHash (path) {
   }
 }
 
-/*  */
-
 class AbstractHistory extends History {
   
   
@@ -2383,10 +2347,6 @@ class AbstractHistory extends History {
   }
 }
 
-/*  */
-
-
-
 class VueRouter {
   // 构造函数 用于处理实例化时传入的参数
   constructor (options = {}) {
@@ -2398,6 +2358,7 @@ class VueRouter {
     this.afterHooks = [] // 初始化全局后置钩子
     // 创建 match 匹配函数
     this.matcher = createMatcher(options.routes || [], this)
+    debugger
 
     let mode = options.mode || 'hash' // 默认 hash 模式
     // history 浏览器环境不支持时向下兼容使用 hash 模式

@@ -22,6 +22,7 @@ export default class VueRouter {
   static install: () => void;
   static version: string;
 
+  // flow 类型定义
   app: any;
   apps: Array<any>;
   ready: boolean;
